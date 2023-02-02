@@ -1,4 +1,4 @@
-interface SiteConfig {
+export interface SiteConfig {
   name: string;
   description: string;
   logo: string;

@@ -1,134 +1,56 @@
 import {
-  Box,
   Burger,
-  createStyles,
-  Drawer,
   Group,
   Header,
-  ScrollArea,
+  MediaQuery,
+  Text,
+  useMantineTheme,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import Link from 'next/link';
+import { useSpotlight } from '@mantine/spotlight';
 import { siteConfig } from '../utils';
 import {
   ColorSchemeToggle,
   ColorSchemeToggleProps,
 } from './color-scheme-toggle';
-import { Logo } from './logo';
+import { SearchControl } from './search-control';
 
-const useStyles = createStyles((theme) => ({
-  link: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '100%',
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
-    textDecoration: 'none',
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    fontWeight: 500,
-    fontSize: theme.fontSizes.sm,
-    [theme.fn.smallerThan('sm')]: {
-      height: 42,
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-    },
-    ...theme.fn.hover({
-      backgroundColor:
-        theme.colorScheme === 'dark'
-          ? theme.colors.dark[6]
-          : theme.colors.gray[0],
-    }),
-  },
-  hiddenMobile: {
-    [theme.fn.smallerThan('sm')]: {
-      display: 'none',
-    },
-  },
-  hiddenDesktop: {
-    [theme.fn.largerThan('sm')]: {
-      display: 'none',
-    },
-  },
-}));
-
-const HEADER_HEIGHT = 60;
-
-export const AppHeader = ({
-  colorSchemeProps,
-}: {
+export interface AppHeaderProps {
+  opened: boolean;
+  onToggleOpened: () => void;
   colorSchemeProps: ColorSchemeToggleProps;
-}) => {
-  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
-    useDisclosure(false);
-  const { classes, theme } = useStyles();
+}
 
-  const links = siteConfig.mainLinks.map((link) => (
-    <Link
-      key={link.name}
-      href={link.href}
-      className={classes.link}
-      onClick={closeDrawer}
-      scroll={false}
-    >
-      {link.name}
-    </Link>
-  ));
+export const AppHeader = (props: AppHeaderProps) => {
+  const { opened, onToggleOpened, colorSchemeProps } = props;
+  const theme = useMantineTheme();
+  const spotlight = useSpotlight();
 
   return (
-    <Box>
-      <Header height={HEADER_HEIGHT} px="md">
-        <Group position="apart" sx={{ height: '100%' }}>
-          <Logo />
-          <Group
-            sx={{ height: '100%' }}
-            spacing={0}
-            className={classes.hiddenMobile}
-          >
-            {links}
-          </Group>
-          <Group
-            sx={{ height: '100%' }}
-            spacing={0}
-            className={classes.hiddenMobile}
-          >
-            <ColorSchemeToggle {...colorSchemeProps} />
-          </Group>
-          <Group className={classes.hiddenDesktop}>
-            <ColorSchemeToggle {...colorSchemeProps} />
-            <Burger
-              title="Toggle navigation"
-              opened={drawerOpened}
-              onClick={toggleDrawer}
-            />
-          </Group>
-        </Group>
-      </Header>
-      <Drawer
-        opened={drawerOpened}
-        onClose={closeDrawer}
-        size={300}
-        padding="md"
-        styles={{
-          root: {
-            top: HEADER_HEIGHT,
-          },
-          drawer: {
-            top: HEADER_HEIGHT,
-          },
+    <Header height={48} p="md">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '100%',
         }}
-        className={classes.hiddenDesktop}
-        zIndex={1000000}
-        withCloseButton={false}
-        position="right"
       >
-        <ScrollArea
-          sx={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-          mx="-md"
-        >
-          {links}
-        </ScrollArea>
-      </Drawer>
-    </Box>
+        <Group>
+          <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+            <Burger
+              opened={opened}
+              onClick={onToggleOpened}
+              size="sm"
+              color={theme.colors.gray[6]}
+            />
+          </MediaQuery>
+          <Text>{siteConfig.name}</Text>
+        </Group>
+        <Group>
+          <SearchControl onClick={() => spotlight.openSpotlight()} />
+          <ColorSchemeToggle {...colorSchemeProps} />
+        </Group>
+      </div>
+    </Header>
   );
 };
